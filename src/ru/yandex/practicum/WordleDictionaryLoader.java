@@ -9,7 +9,7 @@ import java.util.List;
 
 public class WordleDictionaryLoader {
 
-    public WordleDictionary loadWordleDictionary(String fileName) {
+    public WordleDictionary loadWordleDictionary(String fileName) throws IOException {
         List<String> dictionatyList = new ArrayList<>();
         int wordsLength = 5;
 
@@ -22,10 +22,7 @@ public class WordleDictionaryLoader {
                     dictionatyList.add(line.toLowerCase().replace('ё', 'е'));
                 }
             }
-
-            return new WordleDictionary(dictionatyList, wordsLength);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+        return new WordleDictionary(dictionatyList, wordsLength);
     }
 }

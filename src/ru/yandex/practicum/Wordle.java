@@ -1,31 +1,34 @@
 package ru.yandex.practicum;
 
+import ru.yandex.practicum.customExceptions.GameException;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Scanner;
 
-/*
-в главном классе нам нужно:
-    создать лог-файл (он должен передаваться во все классы)
-    создать загрузчик словарей WordleDictionaryLoader
-    загрузить словарь WordleDictionary с помощью класса WordleDictionaryLoader
-    затем создать игру WordleGame и передать ей словарь
-    вызвать игровой метод в котором в цикле опрашивать пользователя и передавать информацию в игру
-    вывести состояние игры и конечный результат
- */
 public class Wordle {
 
     public static void main(String[] args) {
 
         String filename = "words_ru.txt";
+        String logfilename = "log.txt";
 
         WordleDictionaryLoader loader = new WordleDictionaryLoader();
-        WordleDictionary dictionary = loader.loadWordleDictionary(filename);
-
-        WordleGame game = new WordleGame(dictionary);
-
-        startGame(game);
+        try {
+            WordleDictionary dictionary = loader.loadWordleDictionary(filename);
+            WordleGame game = new WordleGame(dictionary);
+            startGame(game);
+        }  catch (Exception exception) {
+            try (Writer logWriter = new FileWriter(logfilename, true)) {
+                logWriter.write(exception.toString());
+            } catch (IOException e) {
+                System.out.println("Ошибка записи логов в файл: " + e.getMessage());
+            }
+        }
     }
 
-    private static void startGame(WordleGame game) {
+    private static void startGame(WordleGame game) throws GameException {
         Scanner scanner = new Scanner(System.in);
 
         String userInput;
@@ -38,17 +41,21 @@ public class Wordle {
         while(game.getCurrentStep() < game.getSteps()) {
             printPreInfoCurrentStep(game);
 
-            userInput = scanner.nextLine().toLowerCase();
+            userInput = scanner.nextLine().toLowerCase().replace("ё", "е");
 
-            comparisonResult = game.getComparisonResult(userInput);
+            try {
+                comparisonResult = game.getComparisonResult(userInput);
 
-            guessed = game.isAnswerCorrect(comparisonResult);
+                guessed = game.isAnswerCorrect(comparisonResult);
 
-            System.out.println(comparisonResult);
-            if (guessed) {
-                System.out.println("Поздравляю! Вы отгадали слово \"" + game.getAnswer() + "\" за " +
-                        (game.getCurrentStep() + 1) + " попыток!");
-                return;
+                System.out.println(comparisonResult);
+                if (guessed) {
+                    System.out.println("Поздравляю! Вы отгадали слово \"" + game.getAnswer() + "\" за " +
+                            game.getCurrentStep() + " попыток!");
+                    return;
+                }
+            } catch (GameException exception) {
+                System.out.println(exception.getMessage());
             }
         }
 

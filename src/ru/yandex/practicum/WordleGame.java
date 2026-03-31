@@ -1,5 +1,11 @@
 package ru.yandex.practicum;
 
+import ru.yandex.practicum.customExceptions.InvalidWordLengthException;
+import ru.yandex.practicum.customExceptions.WordNotFoundInDictionaryException;
+
+import java.util.List;
+import java.util.ArrayList;
+
 /*
 в этом классе хранится словарь и состояние игры
     всё что пользователь вводил
@@ -20,11 +26,22 @@ public class WordleGame {
 
     private WordleDictionary dictionary;
 
+    private List<String> userInput;
+
     public WordleGame(WordleDictionary dictionary) {
+        if (dictionary == null) {
+            throw new IllegalArgumentException("Dictionary cannot be null");
+        }
+
+        if (dictionary.getDictionarySize() == 0) {
+            throw new IllegalArgumentException("Dictionary is empty");
+        }
+
         this.dictionary = dictionary;
         currentStep = 0;
         answer = dictionary.getRandomWord();
         answerLength = answer.length();
+        userInput = new ArrayList<>();
     }
 
     private void updateCurrentStep() {
@@ -36,8 +53,9 @@ public class WordleGame {
     }
 
     // Анализ совпадения слова с ответом
-    public String getComparisonResult(String word) {
-        if (!isWordValid(word)) { return ""; }
+    public String getComparisonResult(String word) throws InvalidWordLengthException,
+            WordNotFoundInDictionaryException {
+        validateWord(word);
 
         char[] result = new char[answerLength];
         boolean[] used = new boolean[answerLength];
@@ -50,7 +68,9 @@ public class WordleGame {
         }
 
         for (int i = 0; i < answerLength; i++) {
-            if (result[i] == '+') continue;
+            if (result[i] == '+') {
+                continue;
+            }
 
             char c = word.charAt(i);
             boolean found = false;
@@ -75,13 +95,18 @@ public class WordleGame {
         return new String(result);
     }
 
-    public boolean isWordValid(String word) {
+    public void validateWord(String word) throws InvalidWordLengthException,
+            WordNotFoundInDictionaryException {
+        if (word == null) {
+            throw new WordNotFoundInDictionaryException("");
+        }
+
         if (word.length() != answerLength) {
-            return false;
-        } else if (!dictionary.isWordInDictionary(word)) {
-            return false;
-        } else {
-            return true;
+            throw new InvalidWordLengthException(answerLength);
+        }
+
+        if (!dictionary.isWordInDictionary(word)) {
+            throw new WordNotFoundInDictionaryException(word);
         }
     }
 
