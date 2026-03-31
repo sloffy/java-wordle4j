@@ -44,7 +44,7 @@ public class Wordle {
         printGreetings(game);
 
 
-        while(game.getCurrentStep() < game.getSteps()) {
+        while (game.getCurrentStep() < game.getSteps()) {
             printPreInfoCurrentStep(game);
 
             userInput = scanner.nextLine().toLowerCase().replace("ё", "е");
