@@ -3,8 +3,9 @@ package ru.yandex.practicum;
 import ru.yandex.practicum.customExceptions.GameException;
 
 import java.io.FileWriter;
+
 import java.io.IOException;
-import java.io.Writer;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 public class Wordle {
@@ -14,21 +15,26 @@ public class Wordle {
         String filename = "words_ru.txt";
         String logfilename = "log.txt";
 
-        WordleDictionaryLoader loader = new WordleDictionaryLoader();
-        try {
+        try (PrintWriter log = new PrintWriter(new FileWriter(logfilename, true), true)) {
+
+            WordleDictionaryLoader loader = new WordleDictionaryLoader();
             WordleDictionary dictionary = loader.loadWordleDictionary(filename);
+
             WordleGame game = new WordleGame(dictionary);
-            startGame(game);
-        }  catch (Exception exception) {
-            try (Writer logWriter = new FileWriter(logfilename, true)) {
-                logWriter.write(exception.toString());
+            log.println("Игра создана. Загаданное слово: " + game.getAnswer());
+
+            startGame(game, log);
+
+        } catch (Exception exception) {
+            try (PrintWriter log = new PrintWriter(new FileWriter(logfilename, true), true)) {
+                log.println("Ошибка в игре: " + exception);
             } catch (IOException e) {
-                System.out.println("Ошибка записи логов в файл: " + e.getMessage());
+                System.out.println("Не удалось записать в лог-файл: " + e.getMessage());
             }
         }
     }
 
-    private static void startGame(WordleGame game) throws GameException {
+    private static void startGame(WordleGame game, PrintWriter log) throws GameException {
         Scanner scanner = new Scanner(System.in);
 
         String userInput;
@@ -43,13 +49,19 @@ public class Wordle {
 
             userInput = scanner.nextLine().toLowerCase().replace("ё", "е");
 
+            log.println("Ход " + (game.getCurrentStep() + 1) + ". Пользователь вводит: " + userInput);
+
             if (userInput.isEmpty()) {
-                System.out.println("Подсказка: " + game.giveHint());
+                String hint = game.giveHint();
+                System.out.println("Подсказка: " + hint);
+                log.println("Выдана подсказка: " + hint);
                 continue;
             }
 
             try {
                 comparisonResult = game.getComparisonResult(userInput);
+
+                log.println("Результат проверки: " + comparisonResult);
 
                 guessed = game.isAnswerCorrect(comparisonResult);
 
@@ -57,6 +69,9 @@ public class Wordle {
                 if (guessed) {
                     System.out.println("Поздравляю! Вы отгадали слово \"" + game.getAnswer() + "\" за " +
                             game.getCurrentStep() + " попыток!");
+
+                    log.println("Победа! Слово " + game.getAnswer() + " угадано за " + game.getCurrentStep() +
+                            " попыток");
                     return;
                 }
             } catch (GameException exception) {
@@ -65,6 +80,7 @@ public class Wordle {
         }
 
         System.out.println("Вам не удалось отгадать слово " + game.getAnswer() + " :'(");
+        log.println("Проигрыш. Слово не угадано: " + game.getAnswer());
     }
 
     private static void printGreetings(WordleGame game) {
