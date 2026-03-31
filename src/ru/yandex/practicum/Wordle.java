@@ -43,6 +43,11 @@ public class Wordle {
 
             userInput = scanner.nextLine().toLowerCase().replace("ё", "е");
 
+            if (userInput.isEmpty()) {
+                System.out.println("Подсказка: " + game.giveHint());
+                continue;
+            }
+
             try {
                 comparisonResult = game.getComparisonResult(userInput);
 

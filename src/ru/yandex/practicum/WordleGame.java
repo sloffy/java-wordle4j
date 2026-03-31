@@ -5,16 +5,8 @@ import ru.yandex.practicum.customExceptions.WordNotFoundInDictionaryException;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
-/*
-в этом классе хранится словарь и состояние игры
-    всё что пользователь вводил
-
-в этом классе нужны методы, которые
-    предложат слово-подсказку с учётом всего, что вводил пользователь ранее
-
-не забудьте про специальные типы исключений для игровых и неигровых ошибок
- */
 public class WordleGame {
 
     private static final int STEPS = 6;
@@ -26,7 +18,10 @@ public class WordleGame {
 
     private WordleDictionary dictionary;
 
-    private List<String> userInput;
+    private List<String> userWordsInput;
+    private final List<String> userResults;
+
+    private static final Random RANDOM = new Random();
 
     public WordleGame(WordleDictionary dictionary) {
         if (dictionary == null) {
@@ -41,7 +36,8 @@ public class WordleGame {
         currentStep = 0;
         answer = dictionary.getRandomWord();
         answerLength = answer.length();
-        userInput = new ArrayList<>();
+        userWordsInput = new ArrayList<>();
+        userResults = new ArrayList<>();
     }
 
     private void updateCurrentStep() {
@@ -90,15 +86,20 @@ public class WordleGame {
             }
         }
 
+        String resultString = new String(result);
+
+        userWordsInput.add(word);
+        userResults.add(resultString);
+
         updateCurrentStep();
 
-        return new String(result);
+        return resultString;
     }
 
     public void validateWord(String word) throws InvalidWordLengthException,
             WordNotFoundInDictionaryException {
-        if (word == null) {
-            throw new WordNotFoundInDictionaryException("");
+        if (word == null || word.isEmpty()) {
+            throw new WordNotFoundInDictionaryException(word);
         }
 
         if (word.length() != answerLength) {
@@ -108,6 +109,67 @@ public class WordleGame {
         if (!dictionary.isWordInDictionary(word)) {
             throw new WordNotFoundInDictionaryException(word);
         }
+    }
+
+    public String giveHint() {
+
+        List<String> possibleWords = new ArrayList<>();
+
+        for (String candidate : dictionary.getWords()) {
+
+            boolean valid = true;
+
+            for (int i = 0; i < userWordsInput.size(); i++) {
+
+                String guess = userWordsInput.get(i);
+                String result = userResults.get(i);
+
+                if (!matchesHint(candidate, guess, result)) {
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                possibleWords.add(candidate);
+            }
+        }
+
+        if (possibleWords.isEmpty()) {
+            return "Подходящих слов не найдено";
+        }
+
+        return possibleWords.get(RANDOM.nextInt(possibleWords.size()));
+    }
+
+    private boolean matchesHint(String candidate, String guess, String result) {
+
+        for (int i = 0; i < answerLength; i++) {
+
+            char letter = guess.charAt(i);
+
+            if (result.charAt(i) == '+') {
+
+                if (candidate.charAt(i) != letter) {
+                    return false;
+                }
+
+            } else if (result.charAt(i) == '^') {
+
+                if (candidate.charAt(i) == letter ||
+                        !candidate.contains(String.valueOf(letter))) {
+                    return false;
+                }
+
+            } else if (result.charAt(i) == '-') {
+
+                if (candidate.contains(String.valueOf(letter))) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     public int getWordLength() {
