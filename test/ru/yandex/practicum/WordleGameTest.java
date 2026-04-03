@@ -16,7 +16,7 @@ class WordleGameTest {
     @BeforeEach
     void init() {
         WordleDictionary dictionary =
-                new WordleDictionary(List.of("арбуз"), 5);
+                new WordleDictionary(List.of("арбуз"));
 
         game = new WordleGame(dictionary);
     }
@@ -52,7 +52,7 @@ class WordleGameTest {
     void testComparisonLogic() throws Exception {
 
         WordleDictionary dictionary =
-                new WordleDictionary(List.of("арбуз", "баруз"), 5);
+                new WordleDictionary(List.of("арбуз", "баруз"));
 
         WordleGame game = new WordleGame(dictionary);
 
@@ -75,7 +75,7 @@ class WordleGameTest {
     void testHint() throws Exception {
 
         WordleDictionary dictionary =
-                new WordleDictionary(List.of("арбуз", "банан", "вишня"), 5);
+                new WordleDictionary(List.of("арбуз", "банан", "вишня"));
 
         WordleGame game = new WordleGame(dictionary);
 
@@ -99,7 +99,7 @@ class WordleGameTest {
     void testCreateGameWithEmptyDictionary() {
 
         WordleDictionary dictionary =
-                new WordleDictionary(List.of(), 5);
+                new WordleDictionary(List.of());
 
         assertThrows(
                 IllegalArgumentException.class,

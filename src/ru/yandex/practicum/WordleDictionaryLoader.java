@@ -23,6 +23,6 @@ public class WordleDictionaryLoader {
                 }
             }
         }
-        return new WordleDictionary(dictionatyList, wordsLength);
+        return new WordleDictionary(dictionatyList);
     }
 }

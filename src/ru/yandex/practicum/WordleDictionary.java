@@ -7,11 +7,9 @@ import java.util.Random;
 public class WordleDictionary {
 
     private List<String> words;
-    private int wordsLength;
 
-    public WordleDictionary(List<String> words, int wordsLength) {
+    public WordleDictionary(List<String> words) {
         this.words = new ArrayList<>(words);
-        this.wordsLength = wordsLength;
     }
 
     public List<String> getWords() {

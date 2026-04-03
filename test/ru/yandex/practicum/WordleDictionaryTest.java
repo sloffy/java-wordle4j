@@ -14,9 +14,7 @@ class WordleDictionaryTest {
     @BeforeEach
     void init() {
         dictionary = new WordleDictionary(
-                List.of("арбуз", "банан", "вишня"),
-                5
-        );
+                List.of("арбуз", "банан", "вишня"));
     }
 
     @Test

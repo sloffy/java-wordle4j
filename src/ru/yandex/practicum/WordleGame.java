@@ -98,7 +98,11 @@ public class WordleGame {
 
     public void validateWord(String word) throws InvalidWordLengthException,
             WordNotFoundInDictionaryException {
-        if (word == null || word.isEmpty()) {
+        if (word == null) {
+            throw new WordNotFoundInDictionaryException("");
+        }
+
+        if (word.isEmpty()) {
             throw new WordNotFoundInDictionaryException(word);
         }
 
